@@ -40,8 +40,8 @@ services:
     env_file:
       - ./grafana/config.monitoring
     networks:
-      - back-tier
-      - docker_lan:
+      back-tier:
+      docker_lan:
         ipv4_address: 192.168.10.30
     labels:
       - 'traefik.enable=true'
