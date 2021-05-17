@@ -42,7 +42,7 @@ services:
     networks:
       - back-tier
       - docker_lan:
-        ipv4_address: 192.168.10.24
+        ipv4_address: 192.168.10.30
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.internet-monitor.rule=Host(`internet-monitor.docker`)'
