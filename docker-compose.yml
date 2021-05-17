@@ -5,8 +5,9 @@ volumes:
     grafana_data: {}
 
 networks:
-  front-tier:
   back-tier:
+  docker_lan:
+    external: true
 
 services:
   prometheus:
@@ -36,13 +37,17 @@ services:
       - ./grafana/provisioning/:/etc/grafana/provisioning/
     depends_on:
       - prometheus
-    ports:
-      - 3030:3000
     env_file:
       - ./grafana/config.monitoring
     networks:
       - back-tier
-      - front-tier
+      - docker_lan:
+        ipv4_address: 192.168.10.24
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.internet-monitor.rule=Host(`internet-monitor.docker`)'
+      - 'traefik.http.routers.internet-monitor.entrypoints=web'
+      - 'traefik.http.services.internet-monitor.loadbalancer.server.port=3000'
 
   ping:
     tty: true
