@@ -26,6 +26,7 @@ services:
     links:
       - ping:ping
       - speedtest:speedtest
+      - mikrotik_exporter:mikrotik_exporter
     networks:
       - back-tier
 
@@ -39,15 +40,18 @@ services:
       - prometheus
     env_file:
       - ./grafana/config.monitoring
+    ports:
+      - 3030:3000
     networks:
       back-tier:
       docker_lan:
-        ipv4_address: 192.168.10.30
+        ipv4_address: 192.168.10.40
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.internet-monitor.rule=Host(`internet-monitor.docker`)'
       - 'traefik.http.routers.internet-monitor.entrypoints=web'
       - 'traefik.http.services.internet-monitor.loadbalancer.server.port=3000'
+      - "traefik.docker.network=docker_lan"
 
   ping:
     tty: true
@@ -92,5 +96,16 @@ services:
       - '--path.sysfs=/host/sys'
       - --collector.filesystem.ignored-mount-points
       - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+    networks:
+      - back-tier
+
+  mikrotik_exporter:
+    image: nshttpd/mikrotik-exporter:1.0.11 # replace version for latest version
+    volumes:
+      - './mikrotik-exporter/config:/config'
+    env_file: ./mikrotik-exporter/env
+    ports:
+      - 9436:9436
+    restart: always
     networks:
       - back-tier
